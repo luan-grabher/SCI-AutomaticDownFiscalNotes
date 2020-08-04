@@ -5,6 +5,7 @@ import SimpleDotEnv.Env;
 import fileManager.FileManager;
 import java.io.File;
 import sci.automaticdownfiscalnotes.Model.DownFileModel;
+import sci.automaticdownfiscalnotes.Model.DownImportationModel;
 import sql.Database;
 
 public class Controller {
@@ -17,6 +18,7 @@ public class Controller {
     
     //Models
     private DownFileModel downFileModel = new DownFileModel();
+    private DownImportationModel downImportationModel = new DownImportationModel();
 
     public File getDownFile() {
         return downFile;
@@ -53,7 +55,21 @@ public class Controller {
         public void run() {
             downFileModel.setFile(downFile);
             downFileModel.setDowns();
+            
+            downImportationModel.setDowns(downFileModel.getDowns());
         }
         
+    }
+    
+    public class importDowns extends Executavel{
+
+        public importDowns() {
+            name = "Importando baixas";
+        }
+
+        @Override
+        public void run() {
+            downImportationModel.importDowns();
+        }        
     }
 }

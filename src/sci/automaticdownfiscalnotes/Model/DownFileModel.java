@@ -52,7 +52,7 @@ public class DownFileModel {
         //Percorre todas as linhas
         for (Iterator<Row> rowIterator = sheet.iterator(); rowIterator.hasNext();) {
             Row row = rowIterator.next();
-            
+
             try {
                 String colFilter = "A";
                 String colDate = "D";
@@ -68,25 +68,24 @@ public class DownFileModel {
                     if (dateCell != null && JExcel.isDateCell(dateCell)) {
                         Calendar date = Calendar.getInstance();
                         date.setTime(dateCell.getDateCellValue());
-                        
+
                         //Se a celula de documento for numerica
                         Cell documentCell = row.getCell(JExcel.Cell(colDocument));
-                        if(documentCell != null && documentCell.getCellType() == CellType.NUMERIC){
+                        if (documentCell != null && documentCell.getCellType() == CellType.NUMERIC) {
                             String document = new BigDecimal(documentCell.getNumericCellValue()).toPlainString();
-                            
+
                             //Somente documentos com numeros grandes
-                            if(document.length() > 10){
-                                
-                                
+                            if (document.length() > 10) {
+
                                 Cell valueCell = row.getCell(JExcel.Cell(colValue));
-                                if(valueCell != null && valueCell.getCellType() == CellType.NUMERIC){
-                                    BigDecimal value =  new BigDecimal(valueCell.getNumericCellValue()).setScale(2, RoundingMode.HALF_UP);
-                                    
+                                if (valueCell != null && valueCell.getCellType() == CellType.NUMERIC) {
+                                    BigDecimal value = new BigDecimal(valueCell.getNumericCellValue()).setScale(2, RoundingMode.HALF_UP);
+
                                     Down down = new Down();
                                     down.setDate(date);
                                     down.setDocument(document);
                                     down.setValue(value);
-                                    
+
                                     downs.add(down);
                                     System.out.println(date.getTime() + " - " + document + " - " + value.toString());
                                 }
@@ -98,7 +97,12 @@ public class DownFileModel {
             } catch (Exception e) {
                 e.printStackTrace();
                 System.out.println("Erro interno na linha " + row.getRowNum());
-            }            
+            }
         }
     }
+
+    public List<Down> getDowns() {
+        return downs;
+    }
+
 }

@@ -19,6 +19,6 @@ public class SCIAutomaticDownFiscalNotes {
         
         controller.new connectToDatabase().run();
         controller.new setDownFile().run();
-        
+        controller.new importDowns().run();
     }
 }
