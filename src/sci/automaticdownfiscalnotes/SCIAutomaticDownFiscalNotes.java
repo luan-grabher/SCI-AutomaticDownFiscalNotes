@@ -4,6 +4,5 @@ public class SCIAutomaticDownFiscalNotes {
     
     public static void main(String[] args) {
         
-    }
-    
+    }    
 }
