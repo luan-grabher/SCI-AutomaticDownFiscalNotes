@@ -4,6 +4,7 @@ import Entity.Executavel;
 import SimpleDotEnv.Env;
 import fileManager.FileManager;
 import java.io.File;
+import sci.automaticdownfiscalnotes.Model.DownFileModel;
 import sql.Database;
 
 public class Controller {
@@ -13,6 +14,9 @@ public class Controller {
     public Integer enterpriseCode = Integer.valueOf(Env.get("enterpriseCode"));
     
     private File downFile;
+    
+    //Models
+    private DownFileModel downFileModel = new DownFileModel();
 
     public File getDownFile() {
         return downFile;
@@ -36,6 +40,20 @@ public class Controller {
             }
         }
         
+        
+    }
+    
+    public class setDownFile extends Executavel{
+
+        public setDownFile() {
+            name = "Definindo o arquivo do modelo de baixas.";
+        }
+
+        @Override
+        public void run() {
+            downFileModel.setFile(downFile);
+            downFileModel.setDowns();
+        }
         
     }
 }
