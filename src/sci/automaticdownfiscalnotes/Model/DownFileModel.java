@@ -87,7 +87,7 @@ public class DownFileModel {
                                     down.setValue(value);
 
                                     downs.add(down);
-                                    System.out.println(date.getTime() + " - " + document + " - " + value.toString());
+                                    //System.out.println(date.getTime() + " - " + document + " - " + value.toString());
                                 }
                             }
                         }

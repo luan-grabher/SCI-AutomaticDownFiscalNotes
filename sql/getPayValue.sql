@@ -1,0 +1,5 @@
+SELECT sum(a.BDVALORPGTOPAR)
+FROM VEF_EMP_TMOVSERPARPGTO a 
+WHERE
+    a.BDCODEMP = ':enterpriseCode' AND 
+    a.BDCHAVE = ':key'
