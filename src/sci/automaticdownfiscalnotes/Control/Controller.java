@@ -84,7 +84,7 @@ public class Controller {
             FileManager.save(
                     new File(
                             System.getProperty("user.home")
-                            + "\\desktop\\LOG Baixar Notas.txt"),
+                            + "\\desktop\\LOG Baixar Notas.csv"),
                      downImportationModel.getLog().toString()
             );
         }
