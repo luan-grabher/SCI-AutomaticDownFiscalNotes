@@ -43,11 +43,7 @@ public class DownImportationModel {
         for (Down down : downs) {
             //atualiza barra
             i++;
-            loading.updateBar(i);
-            
-            if(i > 10){
-                break;
-            }
+            loading.updateBar(i);        
                     
             //Troca nro documento
             variableChanges.put("document", down.getDocument());
