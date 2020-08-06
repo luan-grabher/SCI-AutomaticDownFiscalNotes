@@ -1,6 +1,8 @@
 package sci.automaticdownfiscalnotes.Model;
 
+import Dates.Dates;
 import SimpleDotEnv.Env;
+import SimpleView.Loading;
 import fileManager.FileManager;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -27,13 +29,22 @@ public class DownImportationModel {
         String sqlGetDocumentPortion = FileManager.getText(FileManager.getFile(".\\sql\\getDocumentPortion.sql"));
         String sqlGetFiscalEntryCFOP = FileManager.getText(FileManager.getFile(".\\sql\\getFiscalEntryCFOP.sql"));
         String sqlGetPayValue = FileManager.getText(FileManager.getFile(".\\sql\\getPayValue.sql"));
+        String sqlInsertPayValue = FileManager.getText(FileManager.getFile(".\\sql\\insertPayValue.sql"));
         Integer enterpriseCode = Integer.valueOf(Env.get("enterpriseCode"));
 
         Map<String, String> variableChanges = new HashMap<>();
         variableChanges.put("enterpriseCode", enterpriseCode.toString());
-
+        
+        //Inicializa barra
+        Loading loading = new Loading("Realizando baixas", 0, downs.size());
+        int i = -1;
+        
         //Percorre todas linhas
         for (Down down : downs) {
+            //atualiza barra
+            i++;
+            loading.updateBar(i);
+                    
             //Troca nro documento
             variableChanges.put("document", down.getDocument());
 
@@ -68,13 +79,46 @@ public class DownImportationModel {
 
                     //Se valor que vai ser pago for maior que o valor que falta que falta pagar, mostra aviso e nao paga
                     if(down.getValue().compareTo(missingValue) < 1){
-                        System.out.println(
+                        
+                        //Pega % do valor total
+                        BigDecimal percentOfTotal = down.getValue().divide(liquidValue);
+                        
+                        //REdefine os impostos
+                        pis = pis.multiply(percentOfTotal);
+                        cofins = cofins.multiply(percentOfTotal);
+                        csll = csll.multiply(percentOfTotal);
+                        irrf = irrf.multiply(percentOfTotal);
+                        issqn = issqn.multiply(percentOfTotal);
+                        inss = inss.multiply(percentOfTotal);
+                        
+                        //Prepara trocas
+                        variableChanges.put("value", down.getValue().toPlainString());
+                        variableChanges.put("date", Dates.getCalendarInThisStringFormat(down.getDate(), "yyyy-MM-dd"));
+                        variableChanges.put("onlineConferenceKey",Env.get("onlineConferenceKey"));
+                        variableChanges.put("onlinePlan",Env.get("onlinePlan"));
+                        variableChanges.put("pis",pis.toPlainString());
+                        variableChanges.put("cofins",cofins.toPlainString());
+                        variableChanges.put("csll",csll.toPlainString());
+                        variableChanges.put("irrf",irrf.toPlainString());
+                        variableChanges.put("issqn",issqn.toPlainString());
+                        variableChanges.put("inss",inss.toPlainString());
+                        variableChanges.put("downType",Env.get("downType"));
+                        variableChanges.put("cfop",cfop);
+                        
+                        
+                        if(Database.getDatabase().query(sqlInsertPayValue, variableChanges)){
+                            //Faça alguma coisa
+                        }
+                        
+                        /*System.out.println(
                                 "Doc: " + down.getDocument()
                                 + " - Chave: " + key
                                 + " - Cfop: " + cfop
+                                + " - Data: " + down.getDate().getTime().toString()
                                 + " - Valor: " + down.getValue().toPlainString()
                                 + " - Valor Liquido: " + liquidValue.toPlainString()
-                        );
+                                + " - Percent: " + percentOfTotal.toPlainString()
+                        );*/
                     }else{
                         log
                             .append("\r\nO documento ")
@@ -100,10 +144,17 @@ public class DownImportationModel {
             }
         }
         
+        //finaliza barra
+        loading.dispose();
+        
         System.out.println("Log:\n" + log.toString());
     }
 
-    private String getCFOP() {
-        return "";
+    public StringBuilder getLog() {
+        return log;
     }
+
+    public void setLog(StringBuilder log) {
+        this.log = log;
+    }        
 }
