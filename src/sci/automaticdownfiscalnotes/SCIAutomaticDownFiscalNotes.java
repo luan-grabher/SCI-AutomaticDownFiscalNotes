@@ -11,7 +11,11 @@ import sci.automaticdownfiscalnotes.Control.Controller;
 
 public class SCIAutomaticDownFiscalNotes {
 
+    private static String envPath = "";
+
     public static void main(String[] args) {
+        envPath = args.length > 0 ?args[0]:"";
+        
         JOptionPane.showMessageDialog(null, "Selecione o arquivo de Recebimentos com Retenção do plune com as baixas a serem feitas:");
         File file = Selector.Arquivo.selecionar(System.getProperty("user.home"), "XLS", "xls");
 
@@ -20,22 +24,25 @@ public class SCIAutomaticDownFiscalNotes {
 
     public static void execute(File file) {
         try {
-            Env.setPath("AutomaticDownFiscalNotes");
-
+            //Define o env path se estiver definido, se não, fica como está
+            if (!envPath.equals("")) {
+                Env.setPath(envPath);
+            }
+            
             Controller controller = new Controller();
             controller.setDownFile(file);
-            
+
             List<Executavel> execs = new ArrayList<>();
 
             execs.add(controller.new connectToDatabase());
             execs.add(controller.new setDownFile());
             execs.add(controller.new importDowns());
             execs.add(controller.new saveLog());
-            
-            Execution execution =  new Execution("Baixar notas " + file.getName());
+
+            Execution execution = new Execution("Baixar notas " + file.getName());
             execution.setExecutables(execs);
             execution.runExecutables();
-            execution.endExecution();            
+            execution.endExecution();
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage(), "Ocorreu um erro!", JOptionPane.ERROR_MESSAGE);

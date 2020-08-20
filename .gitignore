@@ -24,3 +24,4 @@ sci.cfg
 hs_err_pid*
 /build/
 /dist/
+/nbproject/private/
