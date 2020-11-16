@@ -3,6 +3,7 @@ package sci.automaticdownfiscalnotes;
 import Entity.Executavel;
 import Executor.Execution;
 import SimpleDotEnv.Env;
+import fileManager.FileManager;
 import fileManager.Selector;
 import java.io.File;
 import java.util.ArrayList;
@@ -30,20 +31,24 @@ public class SCIAutomaticDownFiscalNotes {
                 Env.setPath(envPath);
             }
             
-            Controller controller = new Controller();
-            controller.setDownFile(file);
+            if(FileManager.getFile(envPath).exists()){            
+                Controller controller = new Controller();
+                controller.setDownFile(file);
 
-            List<Executavel> execs = new ArrayList<>();
+                List<Executavel> execs = new ArrayList<>();
 
-            execs.add(controller.new connectToDatabase());
-            execs.add(controller.new setDownFile());
-            execs.add(controller.new importDowns());
-            execs.add(controller.new saveLog());
+                execs.add(controller.new connectToDatabase());
+                execs.add(controller.new setDownFile());
+                execs.add(controller.new importDowns());
+                execs.add(controller.new saveLog());
 
-            Execution execution = new Execution("Baixar notas " + file.getName());
-            execution.setExecutables(execs);
-            execution.runExecutables();
-            execution.endExecution();
+                Execution execution = new Execution("Baixar notas " + file.getName());
+                execution.setExecutables(execs);
+                execution.runExecutables();
+                execution.endExecution();
+            }else{
+                throw new Error("Arquivo de configuração '" + envPath + ".env' não encontrado! Contate o programador!");
+            }
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage(), "Ocorreu um erro!", JOptionPane.ERROR_MESSAGE);
