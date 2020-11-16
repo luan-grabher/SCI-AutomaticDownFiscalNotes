@@ -17,6 +17,7 @@ public class SCIAutomaticDownFiscalNotes {
 
     public static void main(String[] args) {
         envPath = args.length > 0 ?args[0]:"";
+        envPath = "332";
         
         JOptionPane.showMessageDialog(null, "Selecione o arquivo de Recebimentos com Retenção do plune com as baixas a serem feitas:");
         File file = Selector.selectFile(System.getProperty("user.home"), "XLS", "xls");
@@ -31,7 +32,7 @@ public class SCIAutomaticDownFiscalNotes {
                 Env.setPath(envPath);
             }
             
-            if(FileManager.getFile(envPath).exists()){            
+            if(FileManager.getFile(envPath + ".env").exists()){            
                 Controller controller = new Controller();
                 controller.setDownFile(file);
 
@@ -47,7 +48,7 @@ public class SCIAutomaticDownFiscalNotes {
                 execution.runExecutables();
                 execution.endExecution();
             }else{
-                throw new Error("Arquivo de configuração '" + envPath + ".env' não encontrado! Contate o programador!");
+                throw new Exception("Arquivo de configuração '" + envPath + ".env' não encontrado! Contate o programador!");
             }
         } catch (Exception e) {
             e.printStackTrace();

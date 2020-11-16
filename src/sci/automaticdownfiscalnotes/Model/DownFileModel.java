@@ -38,10 +38,16 @@ public class DownFileModel {
             wk = new HSSFWorkbook(new FileInputStream(file));
             sheet = wk.getSheetAt(0);
 
-            passSheet();
+            try{
+                passSheet();
+            }catch(Exception e){
+                e.printStackTrace();
+                throw new Error("Erro inexperado ao extrair informações do arquivo");
+            }
 
             wk.close();
         } catch (Exception e) {
+            e.printStackTrace();
             throw new Error("Erro ao tentar abrir o arquivo: " + file.getAbsolutePath());
         }
     }
