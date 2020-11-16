@@ -3,6 +3,7 @@ package sci.automaticdownfiscalnotes;
 import Entity.Executavel;
 import Executor.Execution;
 import SimpleDotEnv.Env;
+import fileManager.Selector;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class SCIAutomaticDownFiscalNotes {
         envPath = args.length > 0 ?args[0]:"";
         
         JOptionPane.showMessageDialog(null, "Selecione o arquivo de Recebimentos com Retenção do plune com as baixas a serem feitas:");
-        File file = Selector.Arquivo.selecionar(System.getProperty("user.home"), "XLS", "xls");
+        File file = Selector.selectFile(System.getProperty("user.home"), "XLS", "xls");
 
         execute(file);
     }
