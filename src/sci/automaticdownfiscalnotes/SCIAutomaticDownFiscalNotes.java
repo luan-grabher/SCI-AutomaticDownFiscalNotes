@@ -17,7 +17,7 @@ public class SCIAutomaticDownFiscalNotes {
 
     public static void main(String[] args) {
         envPath = args.length > 0 ?args[0]:"";
-        envPath = "332";
+        envPath = "335";
         
         JOptionPane.showMessageDialog(null, "Selecione o arquivo de Recebimentos com Retenção do plune com as baixas a serem feitas:");
         File file = Selector.selectFile(System.getProperty("user.home"), "XLS", "xls");

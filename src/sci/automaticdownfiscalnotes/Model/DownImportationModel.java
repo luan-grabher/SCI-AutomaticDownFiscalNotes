@@ -5,6 +5,8 @@ import SimpleDotEnv.Env;
 import SimpleView.Loading;
 import fileManager.FileManager;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -81,7 +83,7 @@ public class DownImportationModel {
                     if(down.getValue().compareTo(missingValue) < 1){
                         
                         //Pega % do valor total
-                        BigDecimal percentOfTotal = down.getValue().divide(liquidValue);
+                        BigDecimal percentOfTotal = down.getValue().divide(liquidValue,2, RoundingMode.HALF_UP);
                         
                         //REdefine os impostos
                         pis = pis.multiply(percentOfTotal);
@@ -106,19 +108,12 @@ public class DownImportationModel {
                         variableChanges.put("cfop",cfop);
                         
                         
-                        if(Database.getDatabase().query(sqlInsertPayValue, variableChanges)){
-                            //Faça alguma coisa
-                        }
                         
-                        /*System.out.println(
-                                "Doc: " + down.getDocument()
-                                + " - Chave: " + key
-                                + " - Cfop: " + cfop
-                                + " - Data: " + down.getDate().getTime().toString()
-                                + " - Valor: " + down.getValue().toPlainString()
-                                + " - Valor Liquido: " + liquidValue.toPlainString()
-                                + " - Percent: " + percentOfTotal.toPlainString()
-                        );*/
+                        try {
+                            Database.getDatabase().query(sqlInsertPayValue, variableChanges);
+                        } catch (SQLException ex) {
+                            throw new Error(ex);
+                        }
                     }else{
                         log
                             .append("\r\nO documento ")
