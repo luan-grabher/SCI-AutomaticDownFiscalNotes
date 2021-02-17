@@ -1,6 +1,7 @@
 package sci.automaticdownfiscalnotes.Model.Entities;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Calendar;
 
 
@@ -30,7 +31,7 @@ public class Down {
     }
 
     public void setValue(BigDecimal value) {
-        this.value = value;
+        this.value = value.setScale(2, RoundingMode.HALF_UP);
     }
     
     
