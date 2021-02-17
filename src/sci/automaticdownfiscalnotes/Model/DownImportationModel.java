@@ -16,7 +16,7 @@ import sci.automaticdownfiscalnotes.Model.Entities.Down;
 import sql.Database;
 
 public class DownImportationModel {
-    
+
     private MathContext mc = new MathContext(2, RoundingMode.HALF_UP);
 
     private List<Down> downs;
@@ -39,17 +39,17 @@ public class DownImportationModel {
 
         Map<String, String> variableChanges = new HashMap<>();
         variableChanges.put("enterpriseCode", enterpriseCode.toString());
-        
+
         //Inicializa barra
         Loading loading = new Loading("Realizando baixas", 0, downs.size());
         int i = -1;
-        
+
         //Percorre todas linhas
         for (Down down : downs) {
             //atualiza barra
             i++;
-            loading.updateBar(i);        
-                    
+            loading.updateBar(i);
+
             //Troca nro documento
             variableChanges.put("document", down.getDocument());
 
@@ -58,16 +58,15 @@ public class DownImportationModel {
             if (portionResults.size() > 0) {
                 String[] portion = portionResults.get(0);
                 Integer key = Integer.valueOf(portion[1]);
-                BigDecimal liquidValue = new BigDecimal(portion[7],mc);
-                BigDecimal pis = new BigDecimal(portion[12],mc);
-                BigDecimal cofins = new BigDecimal(portion[13],mc);
-                BigDecimal csll = new BigDecimal(portion[14],mc);
-                BigDecimal irrf = new BigDecimal(portion[15],mc);
-                BigDecimal issqn = new BigDecimal(portion[16],mc);
-                BigDecimal inss = new BigDecimal(portion[17],mc);                               
+                BigDecimal liquidValue = new BigDecimal(portion[7], mc);
+                BigDecimal pis = new BigDecimal(portion[12], mc);
+                BigDecimal cofins = new BigDecimal(portion[13], mc);
+                BigDecimal csll = new BigDecimal(portion[14], mc);
+                BigDecimal irrf = new BigDecimal(portion[15], mc);
+                BigDecimal issqn = new BigDecimal(portion[16], mc);
+                BigDecimal inss = new BigDecimal(portion[17], mc);
 
                 //BigDecimal grossValue = new BigDecimal(portion[18]);
-
                 //define troca sql a chave
                 variableChanges.put("key", key.toString());
 
@@ -78,53 +77,50 @@ public class DownImportationModel {
 
                     //Buscar valores já pagos da parcela
                     ArrayList<String[]> payValueResults = Database.getDatabase().select(sqlGetPayValue, variableChanges);
-                    BigDecimal payValue = new BigDecimal(payValueResults.get(0)[0] == null ? "0" : payValueResults.get(0)[0],mc);
-                    BigDecimal missingValue = liquidValue.add(payValue.negate(),mc);
-                    
+                    BigDecimal payValue = new BigDecimal(payValueResults.get(0)[0] == null ? "0.00" : payValueResults.get(0)[0], mc);
+                    BigDecimal missingValue = liquidValue.add(payValue.negate(), mc);
 
                     //Se valor que vai ser pago for maior que o valor que falta que falta pagar, mostra aviso e nao paga
-                    if(down.getValue().compareTo(missingValue) < 1){
-                        
+                    if (down.getValue().compareTo(missingValue) < 1) {
+
                         //Pega % do valor total
-                        BigDecimal percentOfTotal = down.getValue().divide(liquidValue,mc);
-                        
+                        BigDecimal percentOfTotal = down.getValue().divide(liquidValue, mc);
+
                         //REdefine os impostos
-                        pis = pis.multiply(percentOfTotal,mc);
-                        cofins = cofins.multiply(percentOfTotal,mc);
-                        csll = csll.multiply(percentOfTotal,mc);
-                        irrf = irrf.multiply(percentOfTotal,mc);
-                        issqn = issqn.multiply(percentOfTotal,mc);
-                        inss = inss.multiply(percentOfTotal,mc);
-                        
+                        pis = pis.multiply(percentOfTotal, mc);
+                        cofins = cofins.multiply(percentOfTotal, mc);
+                        csll = csll.multiply(percentOfTotal, mc);
+                        irrf = irrf.multiply(percentOfTotal, mc);
+                        issqn = issqn.multiply(percentOfTotal, mc);
+                        inss = inss.multiply(percentOfTotal, mc);
+
                         //Prepara trocas
                         variableChanges.put("value", down.getValue().toPlainString());
                         variableChanges.put("date", Dates.getCalendarInThisStringFormat(down.getDate(), "yyyy-MM-dd"));
-                        variableChanges.put("onlineConferenceKey",Env.get("onlineConferenceKey"));
-                        variableChanges.put("onlinePlan",Env.get("onlinePlan"));
-                        variableChanges.put("pis",pis.toPlainString());
-                        variableChanges.put("cofins",cofins.toPlainString());
-                        variableChanges.put("csll",csll.toPlainString());
-                        variableChanges.put("irrf",irrf.toPlainString());
-                        variableChanges.put("issqn",issqn.toPlainString());
-                        variableChanges.put("inss",inss.toPlainString());
-                        variableChanges.put("downType",Env.get("downType"));
-                        variableChanges.put("cfop",cfop);
-                        
-                        
-                        
+                        variableChanges.put("onlineConferenceKey", Env.get("onlineConferenceKey"));
+                        variableChanges.put("onlinePlan", Env.get("onlinePlan"));
+                        variableChanges.put("pis", pis.toPlainString());
+                        variableChanges.put("cofins", cofins.toPlainString());
+                        variableChanges.put("csll", csll.toPlainString());
+                        variableChanges.put("irrf", irrf.toPlainString());
+                        variableChanges.put("issqn", issqn.toPlainString());
+                        variableChanges.put("inss", inss.toPlainString());
+                        variableChanges.put("downType", Env.get("downType"));
+                        variableChanges.put("cfop", cfop);
+
                         try {
                             Database.getDatabase().query(sqlInsertPayValue, variableChanges);
                         } catch (SQLException ex) {
                             throw new Error(ex);
                         }
-                    }else{
+                    } else {
                         log
-                            .append("\r\nO documento ")
-                            .append(down.getDocument())
-                            .append(" Quer baixar ")
-                            .append(down.getValue())
-                            .append(" e falta apenas ")
-                            .append(missingValue);
+                                .append("\r\nO documento ")
+                                .append(down.getDocument())
+                                .append(" Quer baixar ")
+                                .append(down.getValue())
+                                .append(" e falta apenas ")
+                                .append(missingValue);
                     }
                 } else {
                     log
@@ -141,18 +137,18 @@ public class DownImportationModel {
                         .append(enterpriseCode);
             }
         }
-        
+
         //finaliza barra
         loading.dispose();
-        
+
         System.out.println("Log:\n" + log.toString());
     }
-   
+
     public StringBuilder getLog() {
         return log;
     }
 
     public void setLog(StringBuilder log) {
         this.log = log;
-    }        
+    }
 }
