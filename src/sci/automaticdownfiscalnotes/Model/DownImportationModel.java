@@ -17,7 +17,7 @@ import sql.Database;
 
 public class DownImportationModel {
 
-    private MathContext mc = new MathContext(2, RoundingMode.HALF_UP);
+    public static MathContext mc = new MathContext(2, RoundingMode.HALF_UP);   
 
     private List<Down> downs;
     private StringBuilder log = new StringBuilder();
@@ -30,7 +30,7 @@ public class DownImportationModel {
         this.downs = downs;
     }
 
-    public void importDowns() {
+    public void importDowns() {        
         String sqlGetDocumentPortion = FileManager.getText(FileManager.getFile(".\\sql\\getDocumentPortion.sql"));
         String sqlGetFiscalEntryCFOP = FileManager.getText(FileManager.getFile(".\\sql\\getFiscalEntryCFOP.sql"));
         String sqlGetPayValue = FileManager.getText(FileManager.getFile(".\\sql\\getPayValue.sql"));
