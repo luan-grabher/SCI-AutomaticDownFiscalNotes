@@ -5,7 +5,6 @@ import SimpleDotEnv.Env;
 import SimpleView.Loading;
 import fileManager.FileManager;
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -16,8 +15,6 @@ import sci.automaticdownfiscalnotes.Model.Entities.Down;
 import sql.Database;
 
 public class DownImportationModel {
-
-    public static MathContext mc = new MathContext(2, RoundingMode.HALF_UP);
 
     private List<Down> downs;
     private StringBuilder log = new StringBuilder();
@@ -60,13 +57,13 @@ public class DownImportationModel {
                 if (portionResults.size() > 0) {
                     String[] portion = portionResults.get(0);
                     Integer key = Integer.valueOf(portion[1]);
-                    BigDecimal liquidValue = new BigDecimal(portion[7], mc);
-                    BigDecimal pis = new BigDecimal(portion[12], mc);
-                    BigDecimal cofins = new BigDecimal(portion[13], mc);
-                    BigDecimal csll = new BigDecimal(portion[14], mc);
-                    BigDecimal irrf = new BigDecimal(portion[15], mc);
-                    BigDecimal issqn = new BigDecimal(portion[16], mc);
-                    BigDecimal inss = new BigDecimal(portion[17], mc);
+                    BigDecimal liquidValue = new BigDecimal(portion[7]).setScale(2, RoundingMode.HALF_UP);
+                    BigDecimal pis = new BigDecimal(portion[12]).setScale(2, RoundingMode.HALF_UP);
+                    BigDecimal cofins = new BigDecimal(portion[13]).setScale(2, RoundingMode.HALF_UP);
+                    BigDecimal csll = new BigDecimal(portion[14]).setScale(2, RoundingMode.HALF_UP);
+                    BigDecimal irrf = new BigDecimal(portion[15]).setScale(2, RoundingMode.HALF_UP);
+                    BigDecimal issqn = new BigDecimal(portion[16]).setScale(2, RoundingMode.HALF_UP);
+                    BigDecimal inss = new BigDecimal(portion[17]).setScale(2, RoundingMode.HALF_UP);
 
                     //BigDecimal grossValue = new BigDecimal(portion[18]);
                     //define troca sql a chave
@@ -79,22 +76,22 @@ public class DownImportationModel {
 
                         //Buscar valores já pagos da parcela
                         ArrayList<String[]> payValueResults = Database.getDatabase().select(sqlGetPayValue, variableChanges);
-                        BigDecimal payValue = new BigDecimal(payValueResults.get(0)[0] == null ? "0.00" : payValueResults.get(0)[0], mc);
-                        BigDecimal missingValue = liquidValue.add(payValue.negate(), mc);
+                        BigDecimal payValue = new BigDecimal(payValueResults.get(0)[0] == null ? "0.00" : payValueResults.get(0)[0]).setScale(2, RoundingMode.HALF_UP);
+                        BigDecimal missingValue = liquidValue.add(payValue.negate()).setScale(2, RoundingMode.HALF_UP);
 
                         //Se valor que vai ser pago for maior que o valor que falta que falta pagar, mostra aviso e nao paga
                         if (down.getValue().compareTo(missingValue) < 1) {
 
                             //Pega % do valor total
-                            BigDecimal percentOfTotal = down.getValue().divide(liquidValue, mc);
+                            BigDecimal percentOfTotal = down.getValue().divide(liquidValue).setScale(2, RoundingMode.HALF_UP);
 
                             //REdefine os impostos
-                            pis = pis.multiply(percentOfTotal, mc);
-                            cofins = cofins.multiply(percentOfTotal, mc);
-                            csll = csll.multiply(percentOfTotal, mc);
-                            irrf = irrf.multiply(percentOfTotal, mc);
-                            issqn = issqn.multiply(percentOfTotal, mc);
-                            inss = inss.multiply(percentOfTotal, mc);
+                            pis = pis.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
+                            cofins = cofins.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
+                            csll = csll.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
+                            irrf = irrf.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
+                            issqn = issqn.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
+                            inss = inss.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
 
                             //Prepara trocas
                             variableChanges.put("value", down.getValue().toPlainString());

@@ -57,7 +57,7 @@ public class DownFileModel {
         String colFilter = "A";
         String colDate = "D";
         String colDocument = "E";
-        String colValue = "L";
+        String colValue = "M";
 
         if ( //Se as colunas estiverem corretas
                 strCell(0, colFilter).equals("Filial* [FilialId]")
@@ -89,7 +89,7 @@ public class DownFileModel {
 
                                     Cell valueCell = row.getCell(JExcel.Cell(colValue));
                                     if (valueCell != null && valueCell.getCellType() == CellType.NUMERIC) {
-                                        BigDecimal value = new BigDecimal(valueCell.getNumericCellValue()).setScale(2, RoundingMode.HALF_UP);
+                                        BigDecimal value = new BigDecimal(valueCell.getNumericCellValue());
 
                                         Down down = new Down();
                                         down.setDate(date);
@@ -97,7 +97,6 @@ public class DownFileModel {
                                         down.setValue(value);
 
                                         downs.add(down);
-                                        //System.out.println(date.getTime() + " - " + document + " - " + value.toString());
                                     }
                                 }
                             }
