@@ -38,9 +38,9 @@ public class DownFileModel {
             wk = new HSSFWorkbook(new FileInputStream(file));
             sheet = wk.getSheetAt(0);
 
-            try{
+            try {
                 passSheet();
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 throw new Error("Erro inexperado ao extrair informações do arquivo");
             }
@@ -54,57 +54,76 @@ public class DownFileModel {
 
     public void passSheet() {
         String filter = Env.get("fileRowFilter");
+        String colFilter = "A";
+        String colDate = "D";
+        String colDocument = "E";
+        String colValue = "L";
 
-        //Percorre todas as linhas
-        for (Iterator<Row> rowIterator = sheet.iterator(); rowIterator.hasNext();) {
-            Row row = rowIterator.next();
+        if ( //Se as colunas estiverem corretas
+                strCell(0, colFilter).equals("Filial* [FilialId]")
+                && strCell(0, colDate).equals("Financeiro/Data do Movimento [tbMovimentoConRec_EmpresaId_fkey#DataMovimento]")
+                && strCell(0, colDocument).equals("Número [**ForceFK**Abstract**1758**#NumeroNota]")
+                && strCell(0, colValue).equals("Geral/{Recebimento}Valor [ValorOriginal]")) {
+            //Percorre todas as linhas
+            for (Iterator<Row> rowIterator = sheet.iterator(); rowIterator.hasNext();) {
+                Row row = rowIterator.next();
 
-            try {
-                String colFilter = "A";
-                String colDate = "D";
-                String colDocument = "E";
-                String colValue = "L";
+                try {
+                    //Verifica o filtro na primeira coluna
+                    Cell filterCell = row.getCell(JExcel.Cell(colFilter));
+                    if (filterCell != null && filterCell.toString().equals(filter)) {
 
-                //Verifica o filtro na primeira coluna
-                Cell filterCell = row.getCell(JExcel.Cell(colFilter));
-                if (filterCell != null && filterCell.toString().equals(filter)) {
+                        //Pega data e verifica
+                        Cell dateCell = row.getCell(JExcel.Cell(colDate));
+                        if (dateCell != null && JExcel.isDateCell(dateCell)) {
+                            Calendar date = Calendar.getInstance();
+                            date.setTime(dateCell.getDateCellValue());
 
-                    //Pega data e verifica
-                    Cell dateCell = row.getCell(JExcel.Cell(colDate));
-                    if (dateCell != null && JExcel.isDateCell(dateCell)) {
-                        Calendar date = Calendar.getInstance();
-                        date.setTime(dateCell.getDateCellValue());
+                            //Se a celula de documento for numerica
+                            Cell documentCell = row.getCell(JExcel.Cell(colDocument));
+                            if (documentCell != null && documentCell.getCellType() == CellType.NUMERIC) {
+                                String document = new BigDecimal(documentCell.getNumericCellValue()).toPlainString();
 
-                        //Se a celula de documento for numerica
-                        Cell documentCell = row.getCell(JExcel.Cell(colDocument));
-                        if (documentCell != null && documentCell.getCellType() == CellType.NUMERIC) {
-                            String document = new BigDecimal(documentCell.getNumericCellValue()).toPlainString();
+                                //Somente documentos com numeros grandes
+                                if (document.length() > 10) {
 
-                            //Somente documentos com numeros grandes
-                            if (document.length() > 10) {
+                                    Cell valueCell = row.getCell(JExcel.Cell(colValue));
+                                    if (valueCell != null && valueCell.getCellType() == CellType.NUMERIC) {
+                                        BigDecimal value = new BigDecimal(valueCell.getNumericCellValue()).setScale(2, RoundingMode.HALF_UP);
 
-                                Cell valueCell = row.getCell(JExcel.Cell(colValue));
-                                if (valueCell != null && valueCell.getCellType() == CellType.NUMERIC) {
-                                    BigDecimal value = new BigDecimal(valueCell.getNumericCellValue()).setScale(2, RoundingMode.HALF_UP);
+                                        Down down = new Down();
+                                        down.setDate(date);
+                                        down.setDocument(document);
+                                        down.setValue(value);
 
-                                    Down down = new Down();
-                                    down.setDate(date);
-                                    down.setDocument(document);
-                                    down.setValue(value);
-
-                                    downs.add(down);
-                                    //System.out.println(date.getTime() + " - " + document + " - " + value.toString());
+                                        downs.add(down);
+                                        //System.out.println(date.getTime() + " - " + document + " - " + value.toString());
+                                    }
                                 }
                             }
                         }
-                    }
 
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("Erro interno na linha " + row.getRowNum());
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Erro interno na linha " + row.getRowNum());
             }
+        } else {
+            throw new Error("Este não é o arquivo correto. As colunas corretas são:\n"
+                    + "Filial: " + colFilter + "\n"
+                    + "Data: " + colDate + "\n"
+                    + "Documento: " + colDocument + "\n"
+                    + "Valor: " + colValue);
         }
+
+    }
+
+    /**
+     * Retorna o valor em string da celula
+     */
+    public String strCell(int row, String col) {
+        return JExcel.getCellString(sheet.getRow(row).getCell(JExcel.Cell(col)));
     }
 
     public List<Down> getDowns() {
