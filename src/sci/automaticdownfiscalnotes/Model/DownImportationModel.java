@@ -1,7 +1,6 @@
 package sci.automaticdownfiscalnotes.Model;
 
 import Dates.Dates;
-import SimpleDotEnv.Env;
 import SimpleView.Loading;
 import fileManager.FileManager;
 import java.math.BigDecimal;
@@ -12,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import sci.automaticdownfiscalnotes.Model.Entities.Down;
+import static sci.automaticdownfiscalnotes.SCIAutomaticDownFiscalNotes.ini;
 import sql.Database;
 
 public class DownImportationModel {
@@ -32,7 +32,7 @@ public class DownImportationModel {
         String sqlGetFiscalEntryCFOP = FileManager.getText(FileManager.getFile(".\\sql\\getFiscalEntryCFOP.sql"));
         String sqlGetPayValue = FileManager.getText(FileManager.getFile(".\\sql\\getPayValue.sql"));
         String sqlInsertPayValue = FileManager.getText(FileManager.getFile(".\\sql\\insertPayValue.sql"));
-        Integer enterpriseCode = Integer.valueOf(Env.get("enterpriseCode"));
+        Integer enterpriseCode = Integer.valueOf(ini.get("Config", "enterpriseCode"));
 
         Map<String, String> variableChanges = new HashMap<>();
         variableChanges.put("enterpriseCode", enterpriseCode.toString());
@@ -96,15 +96,15 @@ public class DownImportationModel {
                             //Prepara trocas
                             variableChanges.put("value", down.getValue().toPlainString());
                             variableChanges.put("date", Dates.getCalendarInThisStringFormat(down.getDate(), "yyyy-MM-dd"));
-                            variableChanges.put("onlineConferenceKey", Env.get("onlineConferenceKey"));
-                            variableChanges.put("onlinePlan", Env.get("onlinePlan"));
+                            variableChanges.put("onlineConferenceKey", ini.get("Config", "onlineConferenceKey"));
+                            variableChanges.put("onlinePlan", ini.get("Config", "onlinePlan"));
                             variableChanges.put("pis", pis.toPlainString());
                             variableChanges.put("cofins", cofins.toPlainString());
                             variableChanges.put("csll", csll.toPlainString());
                             variableChanges.put("irrf", irrf.toPlainString());
                             variableChanges.put("issqn", issqn.toPlainString());
                             variableChanges.put("inss", inss.toPlainString());
-                            variableChanges.put("downType", Env.get("downType"));
+                            variableChanges.put("downType", ini.get("Config", "downType"));
                             variableChanges.put("cfop", cfop);
 
                             try {

@@ -1,19 +1,19 @@
 package sci.automaticdownfiscalnotes.Control;
 
 import Entity.Executavel;
-import SimpleDotEnv.Env;
 import fileManager.FileManager;
 import java.io.File;
 import sci.automaticdownfiscalnotes.Model.DownFileModel;
 import sci.automaticdownfiscalnotes.Model.DownImportationModel;
+import static sci.automaticdownfiscalnotes.SCIAutomaticDownFiscalNotes.ini;
 import sql.Database;
 
 public class Controller {
 
-    public Integer onlineConferenceKey = Integer.valueOf(Env.get("onlineConferenceKey"));
-    public Integer onlinePlan = Integer.valueOf(Env.get("onlinePlan"));
-    public Integer downType = Integer.valueOf(Env.get("downType"));
-    public Integer enterpriseCode = Integer.valueOf(Env.get("enterpriseCode"));
+    public Integer onlineConferenceKey = Integer.valueOf(ini.get("Config", "onlineConferenceKey"));
+    public Integer onlinePlan = Integer.valueOf(ini.get("Config", "onlinePlan"));
+    public Integer downType = Integer.valueOf(ini.get("Config", "downType"));
+    public Integer enterpriseCode = Integer.valueOf(ini.get("Config", "enterpriseCode"));
 
     private File downFile;
 
@@ -37,7 +37,7 @@ public class Controller {
 
         @Override
         public void run() {
-            Database.setStaticObject(new Database(FileManager.getFile(Env.get("databaseFilePath"))));
+            Database.setStaticObject(new Database(FileManager.getFile(ini.get("Config", "databaseFilePath"))));
             if (!Database.getDatabase().testConnection()) {
                 throw new Error("Erro ao conectar ao banco de dados.");
             }

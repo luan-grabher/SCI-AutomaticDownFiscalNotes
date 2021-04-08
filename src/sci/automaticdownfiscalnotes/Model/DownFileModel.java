@@ -1,11 +1,9 @@
 package sci.automaticdownfiscalnotes.Model;
 
 import JExcel.JExcel;
-import SimpleDotEnv.Env;
 import java.io.File;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -16,6 +14,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import sci.automaticdownfiscalnotes.Model.Entities.Down;
+import static sci.automaticdownfiscalnotes.SCIAutomaticDownFiscalNotes.ini;
 
 public class DownFileModel {
 
@@ -53,7 +52,7 @@ public class DownFileModel {
     }
 
     public void passSheet() {
-        String filter = Env.get("fileRowFilter");
+        String filter = ini.get("Config", "fileRowFilter");
         String colFilter = "A";
         String colDate = "D";
         String colDocument = "E";
