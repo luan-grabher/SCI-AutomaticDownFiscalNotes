@@ -81,12 +81,14 @@ public class Controller {
 
         @Override
         public void run() {
-            FileManager.save(
-                    new File(
-                            System.getProperty("user.home")
-                            + "\\desktop\\LOG Baixar Notas.csv"),
-                     downImportationModel.getLog().toString()
-            );
+            if (!"".equals(downImportationModel.getLog().toString())) {
+                FileManager.save(
+                        new File(
+                                System.getProperty("user.home")
+                                + "\\desktop\\LOG Baixar Notas.csv"),
+                        downImportationModel.getLog().toString()
+                );
+            }
         }
 
     }
