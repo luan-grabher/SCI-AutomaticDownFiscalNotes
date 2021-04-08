@@ -83,7 +83,7 @@ public class DownImportationModel {
                         if (down.getValue().compareTo(missingValue) < 1) {
 
                             //Pega % do valor total
-                            BigDecimal percentOfTotal = down.getValue().divide(liquidValue).setScale(2, RoundingMode.HALF_UP);
+                            BigDecimal percentOfTotal = down.getValue().divide(liquidValue, 2, RoundingMode.HALF_UP).setScale(2, RoundingMode.HALF_UP);
 
                             //REdefine os impostos
                             pis = pis.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
