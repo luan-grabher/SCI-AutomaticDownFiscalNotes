@@ -81,36 +81,43 @@ public class DownImportationModel {
 
                         //Se valor que vai ser pago for maior que o valor que falta que falta pagar, mostra aviso e nao paga
                         if (down.getValue().compareTo(missingValue) < 1) {
+                            if (liquidValue.compareTo(BigDecimal.ZERO) != 0) {
 
-                            //Pega % do valor total
-                            BigDecimal percentOfTotal = down.getValue().divide(liquidValue, 2, RoundingMode.HALF_UP).setScale(2, RoundingMode.HALF_UP);
+                                //Pega % do valor total
+                                BigDecimal percentOfTotal = down.getValue().divide(liquidValue, 2, RoundingMode.HALF_UP).setScale(2, RoundingMode.HALF_UP);
 
-                            //REdefine os impostos
-                            pis = pis.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
-                            cofins = cofins.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
-                            csll = csll.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
-                            irrf = irrf.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
-                            issqn = issqn.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
-                            inss = inss.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
+                                //REdefine os impostos
+                                pis = pis.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
+                                cofins = cofins.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
+                                csll = csll.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
+                                irrf = irrf.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
+                                issqn = issqn.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
+                                inss = inss.multiply(percentOfTotal).setScale(2, RoundingMode.HALF_UP);
 
-                            //Prepara trocas
-                            variableChanges.put("value", down.getValue().toPlainString());
-                            variableChanges.put("date", Dates.getCalendarInThisStringFormat(down.getDate(), "yyyy-MM-dd"));
-                            variableChanges.put("onlineConferenceKey", ini.get("Config", "onlineConferenceKey"));
-                            variableChanges.put("onlinePlan", ini.get("Config", "onlinePlan"));
-                            variableChanges.put("pis", pis.toPlainString());
-                            variableChanges.put("cofins", cofins.toPlainString());
-                            variableChanges.put("csll", csll.toPlainString());
-                            variableChanges.put("irrf", irrf.toPlainString());
-                            variableChanges.put("issqn", issqn.toPlainString());
-                            variableChanges.put("inss", inss.toPlainString());
-                            variableChanges.put("downType", ini.get("Config", "downType"));
-                            variableChanges.put("cfop", cfop);
+                                //Prepara trocas
+                                variableChanges.put("value", down.getValue().toPlainString());
+                                variableChanges.put("date", Dates.getCalendarInThisStringFormat(down.getDate(), "yyyy-MM-dd"));
+                                variableChanges.put("onlineConferenceKey", ini.get("Config", "onlineConferenceKey"));
+                                variableChanges.put("onlinePlan", ini.get("Config", "onlinePlan"));
+                                variableChanges.put("pis", pis.toPlainString());
+                                variableChanges.put("cofins", cofins.toPlainString());
+                                variableChanges.put("csll", csll.toPlainString());
+                                variableChanges.put("irrf", irrf.toPlainString());
+                                variableChanges.put("issqn", issqn.toPlainString());
+                                variableChanges.put("inss", inss.toPlainString());
+                                variableChanges.put("downType", ini.get("Config", "downType"));
+                                variableChanges.put("cfop", cfop);
 
-                            try {
-                                Database.getDatabase().query(sqlInsertPayValue, variableChanges);
-                            } catch (SQLException ex) {
-                                throw new Error(ex);
+                                try {
+                                    Database.getDatabase().query(sqlInsertPayValue, variableChanges);
+                                } catch (SQLException ex) {
+                                    throw new Error(ex);
+                                }
+                            } else {
+                                log
+                                        .append("\r\nO documento ")
+                                        .append(down.getDocument())
+                                        .append(" Possui valor líquido '0,00' no banco!");
                             }
                         } else {
                             log
