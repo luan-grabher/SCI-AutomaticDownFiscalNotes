@@ -52,7 +52,7 @@ public class DownFileModel {
     }
 
     public void passSheet() {
-        String filter = ini.get("Config", "fileRowFilter");
+        String filter = ini.get("Config", "fileRowFilter").toLowerCase();
         String colFilter = ini.get("Colunas", "filial");
         String colDate = ini.get("Colunas", "data");
         String colDocument = ini.get("Colunas", "nota");
@@ -69,8 +69,7 @@ public class DownFileModel {
                     try {
                         //Verifica o filtro na primeira coluna
                         Cell filterCell = row.getCell(JExcel.Cell(colFilter));
-                        if (filterCell != null && filterCell.toString().equals(filter)) {
-
+                        if (filterCell != null && filterCell.toString().toLowerCase().contains(filter)) {
                             //Pega data e verifica
                             Cell dateCell = row.getCell(JExcel.Cell(colDate));
                             if (dateCell != null && JExcel.isDateCell(dateCell)) {
