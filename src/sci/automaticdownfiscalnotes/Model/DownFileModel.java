@@ -1,5 +1,6 @@
 package sci.automaticdownfiscalnotes.Model;
 
+import Dates.Dates;
 import JExcel.JExcel;
 import java.io.File;
 import java.io.FileInputStream;
@@ -74,7 +75,11 @@ public class DownFileModel {
                             Cell dateCell = row.getCell(JExcel.Cell(colDate));
                             if (dateCell != null && JExcel.isDateCell(dateCell)) {
                                 Calendar date = Calendar.getInstance();
-                                date.setTime(dateCell.getDateCellValue());
+                                if(dateCell.getCellType() == CellType.STRING){
+                                    date = Dates.getCalendarFromFormat(dateCell.getStringCellValue(), "dd/MM/yyyy");
+                                }else{
+                                    date.setTime(dateCell.getDateCellValue());
+                                }
 
                                 //Se a celula de documento for numerica
                                 Cell documentCell = row.getCell(JExcel.Cell(colDocument));
