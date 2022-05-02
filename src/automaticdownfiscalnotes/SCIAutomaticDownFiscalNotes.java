@@ -1,7 +1,8 @@
-package sci.automaticdownfiscalnotes;
+package automaticdownfiscalnotes;
 
 import Entity.Executavel;
 import Executor.Execution;
+import automaticdownfiscalnotes.Control.Controller;
 import fileManager.FileManager;
 import fileManager.Selector;
 import java.io.File;
@@ -9,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
 import org.ini4j.Ini;
-import sci.automaticdownfiscalnotes.Control.Controller;
 
 public class SCIAutomaticDownFiscalNotes {
 
@@ -19,8 +19,23 @@ public class SCIAutomaticDownFiscalNotes {
     public static void main(String[] args) {
         iniPath = args.length > 0 ? args[0] : "";
 
+        //Get Config fileType in ini, if not exist, set default ".xls"
+        String fileType = ini.get("Config", "fileType");
+        if (fileType == null) {
+            fileType = ".xls";
+        }
+
+        //if fileType not start with ".", add "."
+        if (!fileType.startsWith(".")) {
+            fileType = "." + fileType;
+        }
+
         JOptionPane.showMessageDialog(null, "Selecione o arquivo de Recebimentos com Retenção do plune com as baixas a serem feitas:");
-        File file = Selector.selectFile(System.getProperty("user.home"), "XLS", ".xls");
+        File file = Selector.selectFile(
+            System.getProperty("user.home"), 
+            fileType.substring(1).toUpperCase(),
+             fileType.toLowerCase()
+        );
 
         execute(file);
     }
