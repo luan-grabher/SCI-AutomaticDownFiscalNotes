@@ -102,6 +102,7 @@ public class DownFileModel {
                                 //Somente documentos com numeros grandes
                                 if (document.length() > documentMinSize) {
 
+                                    //Se a celula de valor for numerica
                                     Cell valueCell = row.getCell(JExcel.Cell(colValue));
                                     if (valueCell != null && valueCell.getCellType() == CellType.NUMERIC) {
                                         BigDecimal value = new BigDecimal(valueCell.getNumericCellValue());

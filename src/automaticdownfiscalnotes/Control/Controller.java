@@ -9,6 +9,9 @@ import static automaticdownfiscalnotes.SCIAutomaticDownFiscalNotes.ini;
 
 import java.io.File;
 
+import com.aspose.pdf.Document;
+import com.aspose.pdf.ExcelSaveOptions;
+
 import sql.Database;
 
 public class Controller {
@@ -29,7 +32,12 @@ public class Controller {
     }
 
     public void setDownFile(File downFile) {
-        this.downFile = downFile;
+        //if downFile to lowercase ends with ".pdf", this.downfile = this.convertPdfToExcel(downFile);, else this.downfile = downFile;
+        if (downFile.getName().toLowerCase().endsWith(".pdf")) {
+            this.downFile = this.convertPdfToExcel(downFile);
+        } else {
+            this.downFile = downFile;
+        }
     }
 
     public class connectToDatabase extends Executavel {
@@ -94,5 +102,23 @@ public class Controller {
             }
         }
 
+    }
+
+    public File convertPdfToExcel(File pdfFile) {
+        Document doc = new Document(pdfFile.getAbsolutePath());
+        // Set Excel options
+        ExcelSaveOptions options = new ExcelSaveOptions();
+        // Set output format
+        options.setFormat(ExcelSaveOptions.ExcelFormat.XLSX);
+        // Set minimizing option
+        options.setMinimizeTheNumberOfWorksheets(true);
+
+        //Setr new file xlsx
+        File newFile = new File(pdfFile.getAbsolutePath().replaceAll(".PDF", ".pdf").replaceAll(".pdf", ".xlsx"));
+
+        // Convert PDF to XLSX
+        doc.save(newFile.getAbsolutePath(), options);
+
+        return newFile;
     }
 }

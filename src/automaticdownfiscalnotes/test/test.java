@@ -3,7 +3,7 @@ public class test {
 
     
     public static void main(String[] args) {
-        automaticdownfiscalnotes.SCIAutomaticDownFiscalNotes.main(new String[]{"335"});
+        automaticdownfiscalnotes.SCIAutomaticDownFiscalNotes.main(new String[]{"AutomaticDownFiscalNotes_Alves"});
     }
     
 }

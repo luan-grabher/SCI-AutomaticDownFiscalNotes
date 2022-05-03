@@ -17,33 +17,37 @@ public class SCIAutomaticDownFiscalNotes {
     public static Ini ini;
 
     public static void main(String[] args) {
-        iniPath = args.length > 0 ? args[0] : "";
+        try{
+            iniPath = args.length > 0 ? args[0] : "";
+            ini = new Ini(FileManager.getFile(iniPath + ".ini"));
 
-        //Get Config fileType in ini, if not exist, set default ".xls"
-        String fileType = ini.get("Config", "fileType");
-        if (fileType == null) {
-            fileType = ".xls";
+            //Get Config fileType in ini, if not exist, set default ".xls"
+            String fileType = ini.get("Config", "fileType");
+            if (fileType == null) {
+                fileType = ".xls";
+            }
+
+            //if fileType not start with ".", add "."
+            if (!fileType.startsWith(".")) {
+                fileType = "." + fileType;
+            }
+
+            JOptionPane.showMessageDialog(null, "Selecione o arquivo de Recebimentos com Retenção do plune com as baixas a serem feitas:");
+            File file = Selector.selectFile(
+                System.getProperty("user.home"), 
+                fileType.substring(1).toUpperCase(),
+                fileType.toLowerCase()
+            );
+
+            execute(file);
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(null, e.getMessage());
         }
-
-        //if fileType not start with ".", add "."
-        if (!fileType.startsWith(".")) {
-            fileType = "." + fileType;
-        }
-
-        JOptionPane.showMessageDialog(null, "Selecione o arquivo de Recebimentos com Retenção do plune com as baixas a serem feitas:");
-        File file = Selector.selectFile(
-            System.getProperty("user.home"), 
-            fileType.substring(1).toUpperCase(),
-             fileType.toLowerCase()
-        );
-
-        execute(file);
     }
 
     public static void execute(File file) {
         try {
-            if (file != null) {
-                ini = new Ini(FileManager.getFile(iniPath + ".ini"));
+            if (file != null) {                
 
                 Controller controller = new Controller();
                 controller.setDownFile(file);
