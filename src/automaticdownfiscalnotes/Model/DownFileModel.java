@@ -86,33 +86,91 @@ public class DownFileModel {
                     if (filterCell != null && filterCell.toString().toLowerCase().contains(filter)) {
                         //Pega data e verifica
                         Cell dateCell = row.getCell(JExcel.Cell(colDate));
-                        if (dateCell != null && JExcel.isDateCell(dateCell)) {
+                        if (dateCell != null && (JExcel.isDateCell(dateCell) || 
+                            (dateCell.getCellType() == CellType.STRING
+                            && (Dates.isDateInThisFormat(dateCell.getStringCellValue(), "dd/MM")))
+                            )
+                        ) {
                             Calendar date = Calendar.getInstance();
                             if(dateCell.getCellType() == CellType.STRING){
-                                date = Dates.getCalendarFromFormat(dateCell.getStringCellValue(), "dd/MM/yyyy");
+                                String dateStr = dateCell.getStringCellValue();
+                                //se nao tiver ano, seta o ano atual
+                                if(Dates.isDateInThisFormat(dateCell.getStringCellValue(), "dd/MM")){
+                                    dateStr += "/" + Calendar.getInstance().get(Calendar.YEAR);
+                                }
+                                //SET DATE
+                                date = Dates.getCalendarFromFormat(dateStr, "dd/MM/yyyy");
                             }else{
                                 date.setTime(dateCell.getDateCellValue());
                             }
 
                             //Se a celula de documento for numerica
                             Cell documentCell = row.getCell(JExcel.Cell(colDocument));
-                            if (documentCell != null && documentCell.getCellType() == CellType.NUMERIC) {
-                                String document = new BigDecimal(documentCell.getNumericCellValue()).toPlainString();
+                            if (documentCell != null && (documentCell.getCellType() == CellType.NUMERIC || documentCell.getCellType() == CellType.STRING)) {
+                                String document = "";
+
+                                //Se
+                                if (documentCell.getCellType() == CellType.NUMERIC) {
+                                    document = new BigDecimal(documentCell.getNumericCellValue()).toPlainString();
+                                }//else if is string
+                                else if (documentCell.getCellType() == CellType.STRING) {
+                                    document = documentCell.getStringCellValue();
+
+                                    //remove caracteres nao numericos e não "/"
+                                    document = document.replaceAll("[^0-9/]", "");
+                                    
+                                    //se tiver mais de um "/"
+                                    while (document.length() - document.replace("/", "").length() > 1) {
+                                        //remove a primeira ocorrencia de "/"
+                                        document = document.replaceFirst("/", "");
+                                    }
+
+                                    //enquanto tiver menos do tamanho minimo
+                                    while (document.length()-1 < documentMinSize) {
+                                        //substitui "/" por "/0"
+                                        document = document.replace("/", "/0");
+                                    }
+
+                                    //substitui "/" por "0"
+                                    document = document.replace("/", "");
+                                }
+                                
 
                                 //Somente documentos com numeros grandes
-                                if (document.length() > documentMinSize) {
+                                if (document.length() >= documentMinSize) {
 
                                     //Se a celula de valor for numerica
                                     Cell valueCell = row.getCell(JExcel.Cell(colValue));
-                                    if (valueCell != null && valueCell.getCellType() == CellType.NUMERIC) {
-                                        BigDecimal value = new BigDecimal(valueCell.getNumericCellValue());
+                                    if (valueCell != null){
+                                        BigDecimal value = new BigDecimal(0);
 
-                                        Down down = new Down();
-                                        down.setDate(date);
-                                        down.setDocument(document);
-                                        down.setValue(value);
+                                        if(valueCell.getCellType() == CellType.NUMERIC) {
+                                            value = new BigDecimal(valueCell.getNumericCellValue());
+                                        }else if(valueCell.getCellType() == CellType.STRING){
+                                            String valueStr = valueCell.getStringCellValue();
+                                            //remove caracteres nao numericos . e ,
+                                            valueStr = valueStr.replaceAll("[^0-9.,]", "");
 
-                                        downs.add(down);
+                                            //se tiver "." e ",", e a posição do "." for menor que a posição do ",", remove "." e  faz replace de "," por "."
+                                            if(valueStr.contains(",") && valueStr.contains(".")){
+                                                if(valueStr.indexOf(".") < valueStr.indexOf(",")){
+                                                    valueStr = valueStr.replace(".", "");
+                                                    valueStr = valueStr.replace(",", ".");
+                                                }
+                                            }
+
+                                            value = new BigDecimal(valueStr);
+                                        }
+
+                                        //Se o valor for maior que zero
+                                        if (value.compareTo(BigDecimal.ZERO) > 0) {
+                                            Down down = new Down();
+                                            down.setDate(date);
+                                            down.setDocument(document);
+                                            down.setValue(value);
+
+                                            downs.add(down);
+                                        }
                                     }
                                 }
                             }
