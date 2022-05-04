@@ -6,10 +6,12 @@ import automaticdownfiscalnotes.Control.Controller;
 import fileManager.FileManager;
 import fileManager.Selector;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
 import org.ini4j.Ini;
+import org.ini4j.InvalidFileFormatException;
 
 public class SCIAutomaticDownFiscalNotes {
 
@@ -18,8 +20,11 @@ public class SCIAutomaticDownFiscalNotes {
 
     public static void main(String[] args) {
         try{
-            iniPath = args.length > 0 ? args[0] : "";
-            ini = new Ini(FileManager.getFile(iniPath + ".ini"));
+
+            //user select the INI file
+            userSelectIniOnList();
+
+            System.out.println("iniPath: " + iniPath);
 
             //Get Config fileType in ini, if not exist, set default ".xls"
             String fileType = ini.get("Config", "fileType");
@@ -43,6 +48,33 @@ public class SCIAutomaticDownFiscalNotes {
         }catch(Exception e){
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
+    }
+
+    private static void userSelectIniOnList() throws Exception{
+        //get ini 'AutomaticDownFiscalNotes' as config
+        Ini config = new Ini(FileManager.getFile("AutomaticDownFiscalNotes.ini"));
+
+        //get section 'inis'
+        Ini.Section inis = config.get("inis");
+
+        //for each ini in 'inis', create option to select, after show Joption pane to user 'Qual empresa você deseja executar?'
+        List<String> options = new ArrayList<>();
+        for (String ini : inis.keySet()) {
+            //add ini to options
+            options.add(ini);
+        }
+
+        String iniSelected = (String) JOptionPane.showInputDialog(null, "Qual empresa você deseja executar?", "Selecione a empresa", JOptionPane.QUESTION_MESSAGE, null, options.toArray(), options.get(0));
+
+        //if user not select ini, throw exception
+        if (iniSelected == null) {
+            throw new Exception("Não foi selecionado nenhuma empresa.");
+        }
+
+        //set iniPath to ini selected
+        iniPath = inis.get(iniSelected);
+
+        ini = new Ini(FileManager.getFile(iniPath + ".ini"));
     }
 
     public static void execute(File file) {
